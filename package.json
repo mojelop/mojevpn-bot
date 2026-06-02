@@ -1,10 +1,17 @@
 {
   "name": "mojevpn-bot",
   "version": "1.0.0",
+  "description": "Telegram VPN config distribution bot",
   "main": "index.js",
-  "scripts": { "start": "node index.js" },
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
     "telegraf": "^4.16.3",
-    "pg": "^8.11.3"
+    "pg": "^8.13.3",
+    "express": "^4.21.2"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
