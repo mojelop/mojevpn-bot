@@ -343,9 +343,28 @@ bot.action("back_menu", async (ctx) => {
   try { const s = await getSettings(); await ctx.answerCbQuery(); await ctx.replyWithHTML("منوی اصلی", { reply_markup: mainMenu(s) }); } catch {}
 });
 
-initDB().then(() => {
-  bot.launch();
-  console.log("Bot started — @" + (process.env.BOT_USERNAME || "unknown"));
+initDB().then(async () => {
+  const port = process.env.PORT || 3000;
+  const serviceUrl = process.env.RENDER_EXTERNAL_URL;
+
+  if (serviceUrl) {
+    // Webhook mode on Render
+    const webhookPath = "/webhook/" + token.replace(":", "_");
+    await bot.telegram.setWebhook(serviceUrl + webhookPath);
+    const express = require("express");
+    const app = express();
+    app.use(express.json());
+    app.use(bot.webhookCallback(webhookPath));
+    app.get("/", (req, res) => res.send("Bot is running ✅"));
+    app.listen(port, () => {
+      console.log("Webhook server running on port " + port);
+      console.log("Webhook URL: " + serviceUrl + webhookPath);
+    });
+  } else {
+    // Polling mode (local dev)
+    bot.launch();
+    console.log("Bot started in polling mode");
+  }
 }).catch(err => { console.error("Failed to start:", err); process.exit(1); });
 
 process.once("SIGINT", () => bot.stop("SIGINT"));
